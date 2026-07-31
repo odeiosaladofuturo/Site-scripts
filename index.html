@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scripts do Coiso</title>
-  <link rel="icon" type="image/png" href="https://github.com/user-attachments/assets/70800093-fbb7-4fe3-b0b6-ec9c6c8c8500">
+<title>Painel de Acessos</title>
+<link rel="icon" type="image/png" href="https://github.com/user-attachments/assets/70800093-fbb7-4fe3-b0b6-ec9c6c8c8500">
 <style>
   :root{
     --bg: #0f0a1a;
@@ -17,10 +17,16 @@
     --text: #f1ecf7;
     --text-dim: #9b8fae;
     --border: #2e2240;
+
+    --online: #3ddc84;
+    --online-glow: rgba(61, 220, 132, 0.35);
+    --manutencao: #f5b942;
+    --manutencao-glow: rgba(245, 185, 66, 0.35);
+    --offline: #e5484d;
+    --offline-glow: rgba(229, 72, 77, 0.35);
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
-
   html{ scroll-behavior: smooth; }
 
   body{
@@ -42,15 +48,9 @@
     100%{ background-position: 0% 0%, 100% 100%; }
   }
 
-  @media (prefers-reduced-motion: reduce){
-    body{ animation: none; }
-  }
+  @media (prefers-reduced-motion: reduce){ body{ animation: none; } }
 
-  header{
-    max-width: 1000px;
-    margin: 0 auto 48px;
-    text-align: center;
-  }
+  header{ max-width: 900px; margin: 0 auto 36px; text-align: center; }
 
   .eyebrow{
     display:inline-block;
@@ -71,25 +71,60 @@
     letter-spacing: -0.02em;
     margin-bottom: 10px;
   }
-
   h1 span{ color: var(--purple); }
 
-  header p{
-    color: var(--text-dim);
-    font-size: 1rem;
+  header p{ color: var(--text-dim); font-size: 1rem; max-width: 480px; margin: 0 auto; }
+
+  /* ===== Busca ===== */
+  .search-wrap{
     max-width: 480px;
-    margin: 0 auto;
+    margin: 28px auto 0;
+    position: relative;
   }
 
-  main{
-    max-width: 1000px;
-    margin: 0 auto;
+  .search-wrap svg{
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    stroke: var(--text-dim);
+    pointer-events: none;
   }
+
+  #searchInput{
+    width: 100%;
+    padding: 13px 16px 13px 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  #searchInput::placeholder{ color: var(--text-dim); }
+
+  #searchInput:focus{
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px var(--purple-glow);
+  }
+
+  main{ max-width: 1000px; margin: 40px auto 0; }
 
   .grid{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
+  }
+
+  .empty-state{
+    text-align: center;
+    color: var(--text-dim);
+    padding: 48px 16px;
+    display: none;
   }
 
   .card{
@@ -112,16 +147,14 @@
     box-shadow: 0 12px 28px -10px var(--purple-glow);
   }
 
-  .card:focus-visible{
-    outline: 2px solid var(--purple);
-    outline-offset: 2px;
-  }
+  .card:focus-visible{ outline: 2px solid var(--purple); outline-offset: 2px; }
 
   .card-media{
     width: 100%;
     aspect-ratio: 16/10;
     overflow: hidden;
     background: var(--bg-soft);
+    position: relative;
   }
 
   .card-media img{
@@ -132,29 +165,94 @@
     transition: transform 0.3s ease;
   }
 
-  .card:hover .card-media img{
-    transform: scale(1.05);
-  }
+  .card:hover .card-media img{ transform: scale(1.05); }
 
-  .card-body{
-    padding: 16px 18px 18px;
+  /* ===== Selo de status ===== */
+  .status-pill{
+    position: absolute;
+    top: 10px;
+    right: 10px;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-  }
-
-  .card-title{
-    font-size: 1rem;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
     font-weight: 600;
-    line-height: 1.3;
+    letter-spacing: 0.03em;
+    backdrop-filter: blur(6px);
+    background: rgba(15, 10, 26, 0.65);
+    border: 1px solid rgba(255,255,255,0.08);
   }
 
-  .card-desc{
-    font-size: 0.85rem;
-    color: var(--text-dim);
-    line-height: 1.4;
+  .status-dot{
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
+
+  .status-pill[data-status="online"]{ color: var(--online); }
+  .status-pill[data-status="online"] .status-dot{
+    background: var(--online);
+    box-shadow: 0 0 8px var(--online-glow);
+  }
+
+  .status-pill[data-status="manutencao"]{ color: var(--manutencao); }
+  .status-pill[data-status="manutencao"] .status-dot{
+    background: var(--manutencao);
+    box-shadow: 0 0 8px var(--manutencao-glow);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  .status-pill[data-status="offline"]{ color: var(--offline); }
+  .status-pill[data-status="offline"] .status-dot{
+    background: var(--offline);
+    box-shadow: 0 0 8px var(--offline-glow);
+  }
+
+  .status-pill[data-status="em_breve"]{ color: var(--purple); }
+  .status-pill[data-status="em_breve"] .status-dot{
+    background: var(--purple);
+    box-shadow: 0 0 8px var(--purple-glow);
+  }
+
+  @keyframes pulse{
+    0%, 100%{ opacity: 1; transform: scale(1); }
+    50%{ opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ===== Card "em breve" (placeholder, não clicável) ===== */
+  .card.em-breve{
+    cursor: default;
+    border-style: dashed;
+    opacity: 0.6;
+  }
+
+  .card.em-breve:hover{
+    transform: none;
+    background: var(--card);
+    box-shadow: none;
+    border-color: var(--purple);
+  }
+
+  .card.em-breve .card-media{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card.em-breve .card-media svg{
+    width: 32px;
+    height: 32px;
+    stroke: var(--text-dim);
+  }
+
+  .card.em-breve .card-accent{ opacity: 0.15 !important; }
+
+  .card-body{ padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .card-title{ font-size: 1rem; font-weight: 600; line-height: 1.3; }
+  .card-desc{ font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
 
   .card-accent{
     height: 3px;
@@ -163,10 +261,7 @@
     opacity: 0.4;
     transition: opacity 0.18s ease;
   }
-
-  .card:hover .card-accent{
-    opacity: 1;
-  }
+  .card:hover .card-accent{ opacity: 1; }
 
   footer{
     text-align: center;
@@ -176,111 +271,155 @@
     transition: color 0.25s ease;
     cursor: default;
   }
-
-  footer:hover{
-    color: #c77dff;
-  }
+  footer:hover{ color: #c77dff; }
 
   @media (prefers-reduced-motion: reduce){
-    .card, .card-media img{ transition: none; }
+    .card, .card-media img, .status-dot{ transition: none; animation: none; }
   }
 </style>
 </head>
 <body>
 
   <header>
-    <span class="eyebrow">agora organizado</span>
-    <h1>Scripts do <span>Coiso</span></h1>
-    <p>Seja Bem-vindo(a), clique na imagem abaixo e entre no Script.</p>
+    <span class="eyebrow">plataformas oficiais</span>
+    <h1>Painel de <span>Acessos</span></h1>
+    <p>Seus links de estudo em um só lugar. Busque abaixo ou confira o status de cada plataforma.</p>
+
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Buscar plataforma..." autocomplete="off">
+    </div>
   </header>
 
   <main>
     <div class="grid" id="cardGrid"></div>
+    <p class="empty-state" id="emptyState">Nenhuma plataforma encontrada.</p>
   </main>
 
   <footer>
-    Scripts By -Coiso Coisudo de Souza.
+    Painel organizado por -Coiso Coisudo de Souza.
   </footer>
 
 <script>
   // ===========================================
   // ADICIONE OU EDITE OS LINKS AQUI
-  // Cada item = { titulo, descricao, imagem, link }
-  // imagem: caminho de arquivo ou URL da imagem
+  // status: "online" | "manutencao" | "offline"
+  // Isso é definido manualmente por você — sites de
+  // governo bloqueiam checagem automática de status
+  // pelo navegador (CORS), então não dá pra checar
+  // isso sozinho de forma confiável. Atualize aqui
+  // quando notar que algo caiu na sua região.
   // ===========================================
   const links = [
     {
-      titulo: "Taskitos (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://media.discordapp.net/attachments/1469093879818227753/1469093880275144745/image.png?ex=6a2fd08b&is=6a2e7f0b&hm=acb13e3912320d653f93084d185309e0a51ffeace27b00fcc92e04899d387ce5&=&format=webp&quality=lossless&width=764&height=764",
-      link: "https://taskitos.cupiditys.lol/"
-    },
-    {
-      titulo: "Leia  (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://media.discordapp.net/attachments/1498387501218267206/1498387501356945408/hmpbqzd.png?ex=6a2f98db&is=6a2e475b&hm=c50243082af1d10a877ac0f9b9c30baed1ffe72c07ef1866b19a0de09b141805&=&format=webp&quality=lossless",
-      link: "https://leiasp.cupiditys.lol/"
-    },
-    {
-      titulo: "Redação (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://media.discordapp.net/attachments/1482063478222098533/1482063478754640144/redacao.webp?ex=6a2f896c&is=6a2e37ec&hm=82d04d9362a9511bd68b344da926a014b9beee202aeb9f3f805910cb967116d2&=&width=764&height=764",
-      link: "#"
-    },
-    {
-      titulo: "Khan (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://media.discordapp.net/attachments/1470353386539978835/1470353386712076339/image.png?ex=6a2fc84d&is=6a2e76cd&hm=9b8e1a399e1e2c42076c5cdae7261f70ab1bb2a4375024fe86d5c919c5be9a21&=&format=webp&quality=lossless",
-      link: "https://khan.cupiditys.lol/pt-br/"
-    },
-    {
-      titulo: "Speak (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://media.discordapp.net/attachments/1473323302389813361/1473323302566105221/image.png?ex=6a300a40&is=6a2eb8c0&hm=e1560f339dcc980100fe277927ccec1bf2cb091eed2320e52e3a46ee0fe5e71f&=&format=webp&quality=lossless&width=764&height=764",
-      link: "https://speak.moonscripts.cloud/"
-    },
-    {
-      titulo: "Apostilas (off)",
-      descricao: "Acesso ao script.",
-      imagem: "https://placehold.co/400x250/1c1426/9d4edd?text=Apostilas",
-      link: "https://apostilas.cupiditys.lol/"
+      titulo: "CMSP",
+      descricao: "Scripts de: Leia SP, Tarefas e Speak.",
+      imagem: "https://platformdestroyer.fun/images/cmsp.png",
+      link: "https://platformdestroyer.fun/",
+      status: "online"
     },
     {
       titulo: "OpenFuture",
-      descricao: "Casa de scripts.",
+      descricao: "Scripts de: Leia SP, Tarefas, Speak e mais!,
       imagem: "https://openfuture.lol/icon.png",
-      link: "https://openfuture.lol/"
+      link: "https://openfuture.lol/",
+      status: "online"
     },
     {
-      titulo: "CMSP",
-      descricao: "Outra casa de Script",
-      imagem: "https://platformdestroyer.fun/images/cmsp.png",
-      link: "https://platformdestroyer.fun/"
+      titulo: "Nova plataforma",
+      descricao: "Abrir chamado e tirar dúvidas sobre as plataformas.", 
+      status: "em_breve"
+    },
+    {
+      titulo: "Nova plataforma",
+      descricao: "Abrir chamado e tirar dúvidas sobre as plataformas.", 
+      status: "em_breve"
+    },
+    {
+      titulo: "Nova plataforma",
+      descricao: "Abrir chamado e tirar dúvidas sobre as plataformas.", 
+      status: "em_breve"
+    },
+    // Exemplo de placeholder — apague o "titulo"/"descricao" e troque
+    // pelo nome real quando a plataforma nova for anunciada. Para
+    // ativar, basta trocar status para "online" e preencher link/imagem.
+    {
+      titulo: "Nova plataforma",
+      descricao: "Ainda sem previsão — fique de olho.",
+      status: "em_breve"
     }
   ];
 
   const grid = document.getElementById('cardGrid');
+  const emptyState = document.getElementById('emptyState');
+  const searchInput = document.getElementById('searchInput');
 
-  links.forEach(item => {
-    const a = document.createElement('a');
-    a.className = 'card';
-    a.href = item.link;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
+  const statusLabel = {
+    online: "Online",
+    manutencao: "Manutenção",
+    offline: "Fora do ar",
+    em_breve: "Em breve"
+  };
 
-    a.innerHTML = `
-      <div class="card-media">
-        <img src="${item.imagem}" alt="${item.titulo}" loading="lazy">
-      </div>
-      <div class="card-body">
-        <div class="card-title">${item.titulo}</div>
-        <div class="card-desc">${item.descricao}</div>
-      </div>
-      <div class="card-accent"></div>
-    `;
+  const clockIcon = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"></circle>
+      <polyline points="12 7 12 12 15.5 14"></polyline>
+    </svg>`;
 
-    grid.appendChild(a);
+  function renderCards(items){
+    grid.innerHTML = "";
+    items.forEach(item => {
+      const status = item.status || "online";
+      const isEmBreve = status === "em_breve";
+
+      // Card "em breve" não tem link nem imagem real: vira um
+      // placeholder visual, não um <a> clicável.
+      const el = document.createElement(isEmBreve ? 'div' : 'a');
+      el.className = isEmBreve ? 'card em-breve' : 'card';
+      if (!isEmBreve){
+        el.href = item.link;
+        el.target = "_blank";
+        el.rel = "noopener noreferrer";
+      }
+
+      const mediaContent = isEmBreve
+        ? clockIcon
+        : `<img src="${item.imagem}" alt="${item.titulo}" loading="lazy">`;
+
+      el.innerHTML = `
+        <div class="card-media">
+          ${mediaContent}
+          <span class="status-pill" data-status="${status}">
+            <span class="status-dot"></span>${statusLabel[status] || "Online"}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">${item.titulo}</div>
+          <div class="card-desc">${item.descricao}</div>
+        </div>
+        <div class="card-accent"></div>
+      `;
+
+      grid.appendChild(el);
+    });
+
+    emptyState.style.display = items.length ? "none" : "block";
+  }
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = links.filter(item =>
+      item.titulo.toLowerCase().includes(q) ||
+      item.descricao.toLowerCase().includes(q)
+    );
+    renderCards(filtered);
   });
+
+  renderCards(links);
 </script>
 
 </body>
