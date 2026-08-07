@@ -250,33 +250,7 @@
 
   .card.em-breve .card-accent{ opacity: 0.15 !important; }
 
-  .card-body{ padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
-  .card-title{ font-size: 1rem; font-weight: 600; line-height: 1.3; }
-  .card-desc{ font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
-
-  .card-accent{
-    height: 3px;
-    width: 100%;
-    background: linear-gradient(90deg, var(--purple-deep), var(--purple));
-    opacity: 0.4;
-    transition: opacity 0.18s ease;
-  }
-  .card:hover .card-accent{ opacity: 1; }
-
-  footer{
-    text-align: center;
-    margin-top: 56px;
-    color: var(--text-dim);
-    font-size: 0.8rem;
-    transition: color 0.25s ease;
-    cursor: default;
-  }
-  footer:hover{ color: #c77dff; }
-
-  @media (prefers-reduced-motion: reduce){
-    .card, .card-media img, .status-dot{ transition: none; animation: none; }
-  }
-   /* ===== Countdown ===== */
+    /* ===== Countdown ===== */
   .countdown-wrap{
     max-width: 480px;
     margin: 24px auto 0;
@@ -328,6 +302,32 @@
     font-size: 0.95rem;
   }
 
+  .card-body{ padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .card-title{ font-size: 1rem; font-weight: 600; line-height: 1.3; }
+  .card-desc{ font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
+
+  .card-accent{
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--purple-deep), var(--purple));
+    opacity: 0.4;
+    transition: opacity 0.18s ease;
+  }
+  .card:hover .card-accent{ opacity: 1; }
+
+  footer{
+    text-align: center;
+    margin-top: 56px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    transition: color 0.25s ease;
+    cursor: default;
+  }
+  footer:hover{ color: #c77dff; }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .card-media img, .status-dot{ transition: none; animation: none; }
+  }
   .card-body{ padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
   .card-title{ font-size: 1rem; font-weight: 600; line-height: 1.3; }
   .card-desc{ font-size: 0.85rem; color: var(--text-dim); line-height: 1.4; }
