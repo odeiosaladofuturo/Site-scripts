@@ -500,7 +500,65 @@
   });
 
   renderCards(links);
+  
+ // ===========================================
+  // COUNTDOWN — edite as duas linhas abaixo
+  // Formato da data: "AAAA-MM-DDTHH:MM:SS"
+  // Deixe COUNTDOWN_DATE como null para esconder o bloco.
+  // ===========================================
+  const COUNTDOWN_DATE = "2026-12-15T00:00:00";
+  const COUNTDOWN_LABEL = "Faltam para as férias";
+
+  function startCountdown(dateStr, label){
+    if (!dateStr) return;
+
+    const target = new Date(dateStr).getTime();
+    if (isNaN(target)) return;
+
+    const wrap = document.getElementById('countdownWrap');
+    const labelEl = document.getElementById('countdownLabel');
+    const gridEl = document.getElementById('countdownGrid');
+
+    labelEl.textContent = label || "Contagem regressiva";
+    wrap.style.display = "block";
+
+    function unit(value, name){
+      return `
+        <div class="countdown-unit">
+          <span class="countdown-value">${String(value).padStart(2, '0')}</span>
+          <span class="countdown-unit-label">${name}</span>
+        </div>`;
+    }
+
+    function tick(){
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0){
+        gridEl.innerHTML = `<span class="countdown-ended">Muito obrigado por acompanhar o desenvolvimento desse site, Adeus.</span>`;
+        clearInterval(timer);
+        return;
+      }
+
+      const dias = Math.floor(diff / 86400000);
+      const horas = Math.floor((diff % 86400000) / 3600000);
+      const minutos = Math.floor((diff % 3600000) / 60000);
+      const segundos = Math.floor((diff % 60000) / 1000);
+
+      gridEl.innerHTML =
+        unit(dias, "dias") +
+        unit(horas, "hrs") +
+        unit(minutos, "min") +
+        unit(segundos, "seg");
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
+  }
+
+  startCountdown(COUNTDOWN_DATE, COUNTDOWN_LABEL);
 </script>
 
 </body>
 </html>
+
