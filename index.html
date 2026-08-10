@@ -536,20 +536,46 @@
 
   renderCards(links);
 
+ // ===========================================
+  // COUNTDOWN DE DIAS LETIVOS — calendário Seduc-SP / PEI 2026
+  //
+  // FERIAS_DATE = último dia letivo antes do recesso.
+  // Edite se o calendário oficial mudar (ex: em anos seguintes).
+  //
+  // FERIADOS_NAO_LETIVOS = datas (seg-sex) sem aula dentro do
+  // período. Sábado e domingo já são descontados automaticamente.
   // ===========================================
-  // COUNTDOWN — edite as duas linhas abaixo
-  // Formato da data: "AAAA-MM-DDTHH:MM:SS"
-  // Deixe COUNTDOWN_DATE como null para esconder o bloco.
-  // ===========================================
-  const COUNTDOWN_DATE = "2026-12-11T00:00:00";
-  const COUNTDOWN_LABEL = "Faltam para as férias";
+  const COUNTDOWN_LABEL = "Dias letivos até as férias";
+  const FERIAS_DATE = new Date(2026, 11, 18); // 18/12/2026 (mês 0-indexado)
+  const FERIADOS_NAO_LETIVOS = [
+    "2026-09-07", // Independência do Brasil
+    "2026-10-12", // Nossa Senhora Aparecida
+    "2026-11-02", // Finados
+    "2026-11-20", // Consciência Negra
+    // "2026-10-15", // Dia do Professor — descomente se não tiver aula na sua escola
+  ];
 
-  function startCountdown(dateStr, label){
-    if (!dateStr) return;
+  function contarDiasLetivos(dataInicio, dataFim, feriados){
+    const feriadosSet = new Set(feriados);
+    let contador = 0;
+    const atual = new Date(dataInicio);
+    atual.setHours(0, 0, 0, 0);
+    const fim = new Date(dataFim);
+    fim.setHours(0, 0, 0, 0);
 
-    const target = new Date(dateStr).getTime();
-    if (isNaN(target)) return;
+    while (atual <= fim){
+      const diaSemana = atual.getDay(); // 0 = domingo, 6 = sábado
+      const isoDate = atual.toISOString().split('T')[0];
 
+      if (diaSemana !== 0 && diaSemana !== 6 && !feriadosSet.has(isoDate)){
+        contador++;
+      }
+      atual.setDate(atual.getDate() + 1);
+    }
+    return contador;
+  }
+
+  function startCountdownLetivo(targetDate, label, feriados){
     const wrap = document.getElementById('countdownWrap');
     const labelEl = document.getElementById('countdownLabel');
     const gridEl = document.getElementById('countdownGrid');
@@ -557,41 +583,29 @@
     labelEl.textContent = label || "Contagem regressiva";
     wrap.style.display = "block";
 
-    function unit(value, name){
-      return `
-        <div class="countdown-unit">
-          <span class="countdown-value">${String(value).padStart(2, '0')}</span>
-          <span class="countdown-unit-label">${name}</span>
-        </div>`;
-    }
-
     function tick(){
-      const now = Date.now();
-      const diff = target - now;
+      const hoje = new Date();
+      const restantes = contarDiasLetivos(hoje, targetDate, feriados);
 
-      if (diff <= 0){
+      if (restantes <= 0){
         gridEl.innerHTML = `<span class="countdown-ended">Muito obrigado por acompanhar o desenvolvimento desse site, Adeus.</span>`;
         clearInterval(timer);
         return;
       }
 
-      const dias = Math.floor(diff / 86400000);
-      const horas = Math.floor((diff % 86400000) / 3600000);
-      const minutos = Math.floor((diff % 3600000) / 60000);
-      const segundos = Math.floor((diff % 60000) / 1000);
-
-      gridEl.innerHTML =
-        unit(dias, "dias") +
-        unit(horas, "hrs") +
-        unit(minutos, "min") +
-        unit(segundos, "seg");
+      gridEl.innerHTML = `
+        <div class="countdown-unit">
+          <span class="countdown-value">${restantes}</span>
+          <span class="countdown-unit-label">${restantes === 1 ? 'dia letivo' : 'dias letivos'}</span>
+        </div>`;
     }
 
     tick();
-    const timer = setInterval(tick, 1000);
+    // Recalcula a cada minuto — não precisa de mais frequência já que a unidade é "dia"
+    const timer = setInterval(tick, 60000);
   }
 
-  startCountdown(COUNTDOWN_DATE, COUNTDOWN_LABEL);
+  startCountdownLetivo(FERIAS_DATE, COUNTDOWN_LABEL, FERIADOS_NAO_LETIVOS);
 </script>
 
 </body>
